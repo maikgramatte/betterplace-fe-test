@@ -5,15 +5,12 @@ import reportWebVitals from "./reportWebVitals";
 import PaypalButton from "./PaypalButton";
 import { Formik } from "formik";
 const submitHandler = (_, formik) => {
-  setTimeout(() => {
-    formik.setValues({ _paypal_token: "fake_paypal_token" });
-    formik.setSubmitting(false);
-  }, 3000);
+  setTimeout(() => {}, 3000);
 };
 
 ReactDOM.render(
   <React.StrictMode>
-    <Formik onSubmit={submitHandler} initialValues={{}}>
+    <Formik submitHandler={submitHandler}>
       <PaypalButton />
     </Formik>
   </React.StrictMode>,
