@@ -2,7 +2,8 @@
 # Frontend developer test
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-You can provide the answers to questions/code challenge either as zipped file containing the code, or as a link to a fork of this repository
+
+***You can provide the answers to questions/code challenge either as zipped file containing the code, or as a link to a fork of this repository***
 
 ## Question 1
 
