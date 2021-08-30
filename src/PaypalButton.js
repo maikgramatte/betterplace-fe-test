@@ -1,6 +1,6 @@
-import React from "react";
+import { useFormikContext } from "formik";
+import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-import { connect } from "formik";
 
 const buttonStyle = {
   color: "gold",
@@ -11,48 +11,103 @@ const buttonStyle = {
   tagline: false,
 };
 
-class PaypalButton extends React.Component {
-  createOrderOrBillingAgreement = async () => {
-    this.props.formik.submitForm(); // submit will call api with form values and inject _paypal_token into the form values
-    await this.sleepUntilSubmitted();
-    if (this.props.formik.isValid) this.props.formik.setSubmitting(true);
-    return this.props.formik.values._paypal_token;
-  };
+const Button = window.paypal.Buttons.driver("react", { React, ReactDOM });
 
-  sleepUntilSubmitted = async () => {
-    const sleep = async ms => new Promise(resolve => setTimeout(resolve, ms));
-    while (this.props.formik.isSubmitting) {
-      await sleep(100);
+/**
+ * React Paypal Button example:
+ * https://github.com/Luehang/react-paypal-button-v2
+ */
+function PaypalButton() {
+  const ref = useRef();
+  const [isError, setIsError] = useState(false);
+  const {
+    values,
+    submitForm,
+    isSubmitting,
+    setSubmitting,
+    isValid,
+    resetForm,
+  } = useFormikContext();
+
+  /**
+   *
+   */
+  function setSubmittingState() {
+    if (isValid) {
+      console.log('setSubmittingState');
+      setSubmitting(true);
     }
-  };
+  }
 
-  onApprove = () => {
-    // do something on success
-  };
+  useEffect(() => {
+    if (ref.current && values?._paypal_token) {
+      ref.current(values._paypal_token);
+      ref.current = null;
+      setSubmittingState();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values]);
 
-  render = () => {
-    const paypal = window["paypal"];
-    if (!paypal) return null;
+  async function createOrderOrBillingAgreement(b) {
+    if (isError) {
+      setIsError(false);
+    }
 
-    const Button = paypal.Buttons.driver("react", { React, ReactDOM });
-    const { isSubmitting } = this.props.formik;
+    await submitForm();
 
-    return (
-      <div>
-        <div style={(isSubmitting && { display: "none" }) || {}}>
-          <Button
-            commit
-            env="sandbox"
-            createBillingAgreement={this.createOrderOrBillingAgreement}
-            onApprove={this.onApprove}
-            onCancel={() => this.props.formik.setSubmitting(false)}
-            onError={() => this.props.formik.setSubmitting(false)}
-            style={buttonStyle}
-          />
+    const a = new Promise(res => {
+      ref.current = res;
+    });
+
+    return a;
+  }
+
+  function onApprove() {
+    console.log('yeah');
+  }
+
+  function reset() {
+    ref.current = null;
+    resetForm();
+  }
+
+  function onCancel(e) {
+    console.debug('onCancel', e);
+    reset();
+  }
+
+  function onError(e) {
+    console.debug('onError', e);
+    reset();
+  }
+
+  return (
+    <div>
+      {(isError) && (
+        <div role="alert">
+          An error occured.
         </div>
+      )}
+
+      {isSubmitting &&
+        <div role="alert">
+          In progress, please wait...
+        </div>
+      }
+
+      <div>
+        <Button
+          commit
+          env="sandbox"
+          createBillingAgreement={createOrderOrBillingAgreement}
+          onApprove={onApprove}
+          onCancel={onCancel}
+          onError={onError}
+          style={buttonStyle}
+        />
       </div>
-    );
-  };
+    </div>
+  );
 }
 
-export default connect(PaypalButton);
+export default PaypalButton;

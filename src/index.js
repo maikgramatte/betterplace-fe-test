@@ -1,9 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import "./index.css";
-import reportWebVitals from "./reportWebVitals";
-import PaypalButton from "./PaypalButton";
 import { Formik } from "formik";
+
+import reportWebVitals from "./reportWebVitals";
+import FormWrapper from "./FormWrapper";
+
+import "./index.css";
+
 const submitHandler = (_, formik) => {
   setTimeout(() => {
     formik.setValues({ _paypal_token: "fake_paypal_token" });
@@ -14,7 +17,7 @@ const submitHandler = (_, formik) => {
 ReactDOM.render(
   <React.StrictMode>
     <Formik onSubmit={submitHandler} initialValues={{}}>
-      <PaypalButton />
+      <FormWrapper />
     </Formik>
   </React.StrictMode>,
   document.getElementById("root")
